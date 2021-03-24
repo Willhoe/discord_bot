@@ -66,4 +66,4 @@ async def stop(ctx):
     voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
     voice.stop()
 
-client.run('ODIxMjkyMjk1ODIzMTYzNDEy.YFBmDg.48b4J2xX2vePhLl-q4nbCE4Zrz0')
+client.run('token')
