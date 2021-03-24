@@ -1,28 +1,41 @@
 import discord
 from discord.ext import commands
+import youtube_dl
+import os
+import ffmpeg
 
-client = discord.Client()
-
-client = commands.Bot(command_prefix="!")
-
-@client.event
-async def on_message(message):
-    message.content.lower()
-    if message.author == client.user:
-        return
-    if message.content.startswith("hello"):
-
-        if str(message.author) == "Willhoe#6666":
-            await message.channel.send("Fuck you, " + str(message.author) + "!")
-        else:
-            await message.channel.send("Hello, I am a bot.")
+client = commands.Bot(command_prefix=">", intents=discord.Intents.all())
 
 @client.command()
 async def play(ctx, url : str):
-    voiceChannel = discord.utils.get(ctx.guild.voice_channels, name='General')
+    song_there = os.path.isfile("song.mp3")
+    try:
+        if song_there:
+            os.remove("song.mp3")
+    except PermissionError:
+        await ctx.send("Wait for the current music to end or use the 'stop' command")
+        return
+
+    voiceChannel = discord.utils.get(ctx.guild.voice_channels, name='channel')
+    await voiceChannel.connect()
     voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    if not voice.is_connected():
-        await voiceChannel.connect()
+
+        
+
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
+    for file in os.listdir("./"):
+        if file.endswith(".mp3"):
+            os.rename(file, "song.mp3")
+    voice.play(discord.FFmpegPCMAudio("song.mp3"))
     
 @client.command()
 async def leave(ctx):
@@ -53,4 +66,4 @@ async def stop(ctx):
     voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
     voice.stop()
 
-client.run('ODIxMjkyMjk1ODIzMTYzNDEy.YFBmDg.TFd7sjd3hfsZOrkD_VUI3xy_io4')
+client.run('ODIxMjkyMjk1ODIzMTYzNDEy.YFBmDg.48b4J2xX2vePhLl-q4nbCE4Zrz0')
